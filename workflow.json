@@ -1,0 +1,254 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "salla-webhook01",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        320
+      ],
+      "id": "f69fe1f5-3ab3-4a72-b8a9-62a6c862b74a",
+      "name": "Webhook",
+      "webhookId": "7b112c18-09a5-4b4e-9271-d8ad5052c613"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9b5bbefd-ad28-4d90-a8b6-3200759fb1f2",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "product.created",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        480,
+        192
+      ],
+      "id": "0502b806-1be1-403c-8027-83db59471bdc",
+      "name": "If",
+      "webhookId": "d2d17431-9579-4074-b29b-14e5fa87f7f6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7af6b29-9761-4f3a-8dff-3bb340da5bf8",
+              "name": "product_name",
+              "value": "={{ $json.body.data.name }}",
+              "type": "string"
+            },
+            {
+              "id": "15b53c36-150e-49da-bfa5-f225204ab8a3",
+              "name": "product_price",
+              "value": "={{ $json.body.data.price.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "62fe623d-290b-4e57-ae3d-72b075f7a1c1",
+              "name": "product_quantity",
+              "value": "={{ $json.body.data.quantity }}",
+              "type": "number"
+            },
+            {
+              "id": "1e5be8cd-da68-4a8e-9725-65b376adb6df",
+              "name": "product_url",
+              "value": "={{ $json.body.data.urls.customer }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        144
+      ],
+      "id": "7fce4401-4def-48c6-85e9-ef6c95f2dde7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const productName = $json.product_name || \"غير محدد\";\nconst productPrice = $json.product_price != null ? $json.product_price : \"غير محدد\";\nconst productQuantity = $json.product_quantity != null ? $json.product_quantity : \"غير محدد\";\nconst productUrl = $json.product_url || \"#\";  // الرابط للزر، # كخيار افتراضي إذا لم يكن موجود\n\nconst messageText =\n`تم إضافة منتج جديد\n\nاسم المنتج: ${productName}\nالسعر: ${productPrice} ريال\nالكمية: ${productQuantity}`;\n\nreturn [\n  {\n    json: {\n      message_text: messageText,\n      product_url: productUrl  // تمرير الرابط مع نفس العنصر\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        144
+      ],
+      "id": "f9901a3c-446d-41e0-86a6-d93760a3f803",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "content": "## قنـــــاة حلــــــول المتــاجـــــــــــر \n**Contact:** HoloolPro@gmail.com\n\nالمسار هذا يسمح لك بربط متجرك في سلة مع تيليجرام، حيث بمجرد إنشاء منتج جديد سوف تصلك تفاصيله مباشرة في رسالة قصيرة تعلمك ب: اسم المنتج، السعر والكمية.\n\n—---------\nاشترك في [قناة حلول المتاجر](https://www.youtube.com/@HoloolStore)\n",
+        "height": 192,
+        "width": 432,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "f6945016-4da2-4e10-a2aa-063997c476b0",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d6eebb78-fe23-458e-bbee-ba484a63e6e5",
+              "leftValue": "={{ $json.headers['x-salla-secret'] }}",
+              "rightValue": "MY_SECRET_KEY",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        320
+      ],
+      "id": "2a2cffe0-eb5c-406a-a3da-295a1b6e6637",
+      "name": "Header Validation"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message_text }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "عرض المنتج",
+                    "additionalFields": {
+                      "url": "={{ $json.product_url }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1296,
+        144
+      ],
+      "id": "41054eea-a1a6-4b9f-a04e-396b2fb5d40f",
+      "name": "Send a text message",
+      "webhookId": "d2d17431-9579-4074-b29b-14e5fa87f7f6"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Header Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Header Validation": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": ""
+  }
+}
